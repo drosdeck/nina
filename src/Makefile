@@ -3,7 +3,7 @@
 obj-$(CONFIG_NINA)		+= nina.o
 
 obj-y		+= ninasysfs.o
-#obj-y		+= tblface.o
+obj-y		+= ninabus.o
 #obj-y		+= txtfload.o
 #obj-y		+= utmutex.o
 #obj-y		+= evhandler.o
