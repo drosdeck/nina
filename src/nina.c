@@ -1,6 +1,7 @@
 #include <linux/kernel.h>     
 #include <linux/init.h> 
 #include <linux/kobject.h>
+#include <linux/acpi.h>
 
 #include "ninasysfs.h"
 
