@@ -4,6 +4,7 @@
 #include <linux/acpi.h>
 
 #include "ninasysfs.h"
+#include "ninabus.h"
 
 struct kobject *nina_kobj;
 EXPORT_SYMBOL_GPL(nina_kobj);
@@ -22,7 +23,10 @@ static int __init nina_init(void)
 	}
 	nina_sysfs_init();
 	printk("nina init\n");
-	
+
+
+       nina_bus_init();
+
 return 0;
 }
 
