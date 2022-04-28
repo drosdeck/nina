@@ -16,6 +16,8 @@ struct bus_type nina_bus_type = {
 
 };
 
+EXPORT_SYMBOL_GPL(nina_bus_type);
+
 int nina_register_driver(struct nina_driver *drv)
 {
 	int ret;

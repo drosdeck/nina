@@ -3,6 +3,9 @@
 
 #include <linux/device.h>
 
+
+extern struct bus_type acpi_bus_type;
+
 struct  nina_device {
 	const char *type;
 	int version;
