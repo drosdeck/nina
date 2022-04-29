@@ -1,0 +1,13 @@
+menu "NINA acpi"
+
+config NINA 
+      bool "NINA is custom acpi"
+      help
+          This is help/informational content for your module
+
+config NINA_LID
+	tristate "suporte to lid event"
+config NINA_BATTERY
+	tristate "Nina suporte to events to battery"
+	
+endmenu
