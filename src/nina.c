@@ -4,7 +4,7 @@
 #include <linux/acpi.h>
 
 #include "ninasysfs.h"
-#include "ninabus.h"
+#include "ninascan.h"
 
 struct kobject *nina_kobj;
 EXPORT_SYMBOL_GPL(nina_kobj);
@@ -21,12 +21,9 @@ static int __init nina_init(void)
 		printk(KERN_WARNING "%s: kset create error\n", __func__);
 		nina_kobj = NULL;
 	}
-	nina_sysfs_init();
+        //nina_sysfs_init();
 	printk("nina init\n");
-
-
-       nina_bus_init();
-
+        nina_scan_init();	
 return 0;
 }
 

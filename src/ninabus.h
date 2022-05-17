@@ -1,28 +1,21 @@
 #ifndef _NINABUS_H_
 #define _NINABUS_H_
 
-#include <linux/device.h>
 
+extern const struct fwnode_operations acpi_device_fwnode_ops;
 
-extern struct bus_type acpi_bus_type;
+extern struct list_head nina_bus_id_list;
 
-struct  nina_device {
-	const char *type;
-	int version;
-	struct device dev;
+#define ACPI_MAX_DEVICE_INSTANCES	4096
+
+struct acpi_device_bus_id {
+	const char *bus_id;
+	struct ida instance_ida;
+	struct list_head node;
 };
 
-#define to_nina_device(drv) container_of(dev, struct nina_device,dev)
 
-struct nina_driver {
-	const char *type;
-	int (*probe) (struct nina_device *dev);
-//      void (*remove)(struct nina_device *dev);
-        struct device_driver driver;	
-};
+#define ACPI_STA_DEFAULT (ACPI_STA_DEVICE_PRESENT | ACPI_STA_DEVICE_ENABLED | \
+			  ACPI_STA_DEVICE_UI | ACPI_STA_DEVICE_FUNCTIONING)
 
-#define to_nina_driver(drv) container_of(drv, struct nina_driver, driver)
-int nina_register_driver(struct nina_driver *drv);
-
-int nina_bus_init(void);
 #endif
