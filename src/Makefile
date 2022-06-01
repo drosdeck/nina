@@ -6,6 +6,7 @@ obj-y		+= ninasysfs.o
 obj-y		+= ninabus.o
 obj-y		+= ninaproperties.o
 obj-y		+= ninapower.o
+obj-y		+= ninaosl.o
 obj-y		+= ninascan.o
 #obj-y		+= utmutex.o
 #obj-y		+= evhandler.o
