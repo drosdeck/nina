@@ -20,6 +20,8 @@ extern struct acpi_device *nina_root;
 LIST_HEAD(nina_bus_id_list);
 LIST_HEAD(nina_wakeup_device_list);
 //--------------------------
+
+static bool nina_bus_scan_second_pass;
 static struct acpi_device_bus_id *acpi_device_bus_id_match(const char *dev_id);
 
 static int bex_match(struct device *dev, struct device_driver *driver);
@@ -635,6 +637,7 @@ static int nina_add_single_object(struct acpi_device **child,
              //adiciona  	
              nina_device_add(device);
 	}
+	*child = device;
 	return 0;
 }
 
@@ -655,12 +658,17 @@ static acpi_status nina_bus_check_add(acpi_handle handle, bool check_dep,
 
 	if (ACPI_FAILURE(acpi_get_type(handle, &acpi_type)))
 		return AE_OK;
-
+        printk("NINA o valor do acpi_type %d\n",acpi_type); 
 	switch (acpi_type) {
 
 		case ACPI_TYPE_ANY:	/* for ACPI_ROOT_OBJECT */
 			type = ACPI_BUS_TYPE_DEVICE;
 			break;
+		
+		case ACPI_TYPE_THERMAL:
+		type = ACPI_BUS_TYPE_THERMAL;
+		break;	
+		
 		default:
 		return AE_OK;	
 
@@ -671,13 +679,29 @@ static acpi_status nina_bus_check_add(acpi_handle handle, bool check_dep,
 	return AE_OK;
 	
 }
+static acpi_status nina_bus_check_add_1(acpi_handle handle, u32 lvl_not_used,
+					void *not_used, void **ret_p)
+{
+	return nina_bus_check_add(handle, true, (struct acpi_device **)ret_p);
+}
+
 
 int nina_bus_scan(acpi_handle handle)
 {
 	struct acpi_device *device = NULL;	
-	
+
+        nina_bus_scan_second_pass = false;	
 	printk("ini");	
-	nina_bus_check_add(handle, true, &device);	
+	//nina_bus_check_add(handle, true, &device);
+       if (ACPI_SUCCESS(nina_bus_check_add(handle, true, &device)))
+		acpi_walk_namespace(ACPI_TYPE_ANY, handle, ACPI_UINT32_MAX,
+				    nina_bus_check_add_1, NULL, NULL,
+				    (void **)&device);
+           
+       if (!device)
+		return -ENODEV;
+       //fazendo aqui
+       //acpi_bus_attach(device, true);	       
 	return 0;
 }
 
