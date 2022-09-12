@@ -21,6 +21,8 @@ LIST_HEAD(nina_bus_id_list);
 LIST_HEAD(nina_wakeup_device_list);
 //--------------------------
 
+static u64 spcr_uart_addr;
+
 static bool nina_bus_scan_second_pass;
 static struct acpi_device_bus_id *acpi_device_bus_id_match(const char *dev_id);
 
@@ -83,6 +85,7 @@ int nina_device_add(struct acpi_device *adev)
 	INIT_LIST_HEAD(&adev->wakeup_list);
 	INIT_LIST_HEAD(&adev->physical_node_list);
 	INIT_LIST_HEAD(&adev->del_list);
+        printk("NINA device name %s\n",acpi_device_hid(adev));
 
 	acpi_device_bus_id = acpi_device_bus_id_match(acpi_device_hid(adev));
 	if (acpi_device_bus_id) {
@@ -619,7 +622,7 @@ static int nina_add_single_object(struct acpi_device **child,
 	struct acpi_device *device;
 	bool release_dep_lock = false;
 	int result;
-
+        printk("NINA entrou no single obj valor do type %d\n",type);
 	device = kzalloc(sizeof(struct acpi_device), GFP_KERNEL);
 	if (!device)
 		return -ENOMEM;
@@ -635,11 +638,23 @@ static int nina_add_single_object(struct acpi_device **child,
                //aqui
 	       acpi_bus_get_power_flags(device);
              //adiciona  	
-             nina_device_add(device);
+           //  nina_device_add(device);
 	}
+	
+         nina_device_add(device);
 	*child = device;
 	return 0;
 }
+
+static bool acpi_device_should_be_hidden(acpi_handle handle)
+{
+	acpi_status status;
+	struct resource res;
+        if (!(spcr_uart_addr && acpi_has_method(handle, METHOD_NAME__CRS)))
+		return false;
+
+	return true;
+}	
 
 static acpi_status nina_bus_check_add(acpi_handle handle, bool check_dep,
 				      struct acpi_device **adev_p)
@@ -658,9 +673,14 @@ static acpi_status nina_bus_check_add(acpi_handle handle, bool check_dep,
 
 	if (ACPI_FAILURE(acpi_get_type(handle, &acpi_type)))
 		return AE_OK;
-        printk("NINA o valor do acpi_type %d\n",acpi_type); 
+        //printk("NINA o valor do acpi_type %2x\n",acpi_type); 
 	switch (acpi_type) {
+                case ACPI_TYPE_DEVICE:
+			printk("NINA achou device\n");
+			if (acpi_device_should_be_hidden(handle))
+			return AE_OK;
 
+                        fallthrough; 
 		case ACPI_TYPE_ANY:	/* for ACPI_ROOT_OBJECT */
 			type = ACPI_BUS_TYPE_DEVICE;
 			break;
@@ -681,7 +701,8 @@ static acpi_status nina_bus_check_add(acpi_handle handle, bool check_dep,
 }
 static acpi_status nina_bus_check_add_1(acpi_handle handle, u32 lvl_not_used,
 					void *not_used, void **ret_p)
-{
+{      
+	//printk("NINA entrou no add 1\n");
 	return nina_bus_check_add(handle, true, (struct acpi_device **)ret_p);
 }
 
